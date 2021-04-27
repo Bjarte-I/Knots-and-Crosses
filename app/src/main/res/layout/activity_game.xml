@@ -22,7 +22,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/_00"
+                android:id="@+id/zero_zero"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -30,7 +30,7 @@
                 android:layout_margin="4dp"/>
 
             <Button
-                android:id="@+id/_01"
+                android:id="@+id/zero_one"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -39,7 +39,7 @@
                 />
 
             <Button
-                android:id="@+id/_02"
+                android:id="@+id/zero_two"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -54,7 +54,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/_10"
+                android:id="@+id/one_zero"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -62,7 +62,7 @@
                 android:layout_margin="4dp"/>
 
             <Button
-                android:id="@+id/_11"
+                android:id="@+id/one_one"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -71,7 +71,7 @@
                 />
 
             <Button
-                android:id="@+id/_12"
+                android:id="@+id/one_two"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -86,14 +86,14 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/_20"
+                android:id="@+id/two_zero"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
                 android:text="" android:layout_margin="4dp"/>
 
             <Button
-                android:id="@+id/_21"
+                android:id="@+id/two_one"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -101,7 +101,7 @@
                 android:layout_margin="4dp"/>
 
             <Button
-                android:id="@+id/_22"
+                android:id="@+id/two_two"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
