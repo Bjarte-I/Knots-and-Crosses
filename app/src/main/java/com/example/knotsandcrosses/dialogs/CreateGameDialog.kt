@@ -8,7 +8,6 @@ import androidx.fragment.app.DialogFragment
 import com.example.knotsandcrosses.databinding.DialogCreateGameBinding
 
 class CreateGameDialog() : DialogFragment() {
-
     internal lateinit var listener:GameDialogListener
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
