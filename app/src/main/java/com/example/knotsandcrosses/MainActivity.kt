@@ -9,6 +9,7 @@ import com.example.knotsandcrosses.api.data.Game
 import com.example.knotsandcrosses.databinding.ActivityMainBinding
 import com.example.knotsandcrosses.dialogs.CreateGameDialog
 import com.example.knotsandcrosses.dialogs.GameDialogListener
+import com.example.knotsandcrosses.dialogs.GameIdDialog
 
 class MainActivity : AppCompatActivity() , GameDialogListener {
 
@@ -51,8 +52,17 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
     }
 
     private fun onCreatedGame(state: Game?, errorCode:Int?){
-        print(state)
+        if(state == null){
+            print(errorCode)
+            return
+        }
+        /*print(state.gameId)
         print(errorCode)
+        val dlg = GameIdDialog(state.gameId)
+        dlg.show(supportFragmentManager,"GameIdDialogFragment")*/
+        val displayText = "%1s%2s".format("Latest game id: ", state.gameId)
+
+        binding.tvGameId.text = displayText
     }
 
     private fun onJoinedGame(state: Game?, errorCode:Int?){
