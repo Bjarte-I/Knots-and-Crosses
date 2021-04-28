@@ -9,6 +9,9 @@ import com.example.knotsandcrosses.R
 import com.example.knotsandcrosses.api.data.Game
 import com.example.knotsandcrosses.api.data.GameState
 import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -42,7 +45,7 @@ object GameService {
 
         val requestData = JSONObject()
         requestData.put("player", playerId)
-        requestData.put("state", state)
+        requestData.put("state", JSONArray(state))
 
         val request = object : JsonObjectRequest(
             Request.Method.POST,url, requestData,
@@ -98,7 +101,7 @@ object GameService {
 
         val requestData = JSONObject()
         requestData.put("gameId", gameId)
-        requestData.put("gameState", gameState)
+        requestData.put("gameState", JSONArray(gameState))
 
         val request = object : JsonObjectRequest(
             Method.POST,url, requestData,
