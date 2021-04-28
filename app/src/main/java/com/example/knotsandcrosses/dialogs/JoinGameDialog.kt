@@ -5,24 +5,27 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import com.example.knotsandcrosses.databinding.DialogGameIdBinding
+import com.example.knotsandcrosses.databinding.DialogJoinGameBinding
 
-class GameIdDialog(gameId: String) : DialogFragment() {
-    // internal lateinit var listener:GameDialogListener
-    private val dialogText = gameId
+
+class JoinGameDialog : DialogFragment() {
+    internal lateinit var listener:GameDialogListener
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
 
             val builder: AlertDialog.Builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-            val binding = DialogGameIdBinding.inflate(inflater)
-
-            binding.tvGameId.text = dialogText
+            val binding = DialogJoinGameBinding.inflate(inflater)
 
             builder.apply {
-                setTitle("Game Id:")
-                setPositiveButton("Okay") { dialog, which ->
+                setTitle("Join game")
+                setPositiveButton("Join") { dialog, which ->
+                    if(binding.playerName.text.toString() != "" && binding.gameId.text.toString() != ""){
+                        listener.onDialogJoinGame(binding.playerName.text.toString(), binding.gameId.text.toString())
+                    }
+                }
+                setNegativeButton("Cancle") { dialog, which ->
                     dialog.cancel()
                 }
                 setView(binding.root)
@@ -34,7 +37,7 @@ class GameIdDialog(gameId: String) : DialogFragment() {
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    /*override fun onAttach(context: Context) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
             listener = context as GameDialogListener
@@ -42,6 +45,6 @@ class GameIdDialog(gameId: String) : DialogFragment() {
             throw ClassCastException(("$context must implement GameDialogListener"))
 
         }
-    }*/
+    }
 
 }

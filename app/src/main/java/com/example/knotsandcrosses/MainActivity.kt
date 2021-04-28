@@ -1,5 +1,6 @@
 package com.example.knotsandcrosses
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import com.example.knotsandcrosses.databinding.ActivityMainBinding
 import com.example.knotsandcrosses.dialogs.CreateGameDialog
 import com.example.knotsandcrosses.dialogs.GameDialogListener
 import com.example.knotsandcrosses.dialogs.GameIdDialog
+import com.example.knotsandcrosses.dialogs.JoinGameDialog
 
 class MainActivity : AppCompatActivity() , GameDialogListener {
 
@@ -38,7 +40,8 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
     }
 
     private fun joinGame(){
-        GameService.joinGame("j", "ffufj", this::onJoinedGame)
+        val dlg = JoinGameDialog()
+        dlg.show(supportFragmentManager, "JoinGameDialogFragment")
     }
 
     override fun onDialogCreateGame(player: String) {
@@ -56,13 +59,16 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
             print(errorCode)
             return
         }
+        val intent = Intent(this, GameActivity::class.java).apply {
+            putExtra("EXTRA_STATE", state)
+        }
+        startActivity(intent)
         /*print(state.gameId)
         print(errorCode)
         val dlg = GameIdDialog(state.gameId)
         dlg.show(supportFragmentManager,"GameIdDialogFragment")*/
-        val displayText = "%1s%2s".format("Latest game id: ", state.gameId)
-
-        binding.tvGameId.text = displayText
+        /*val displayText = "%1s%2s".format("Latest game id: ", state.gameId)
+        binding.tvGameId.text = displayText*/
     }
 
     private fun onJoinedGame(state: Game?, errorCode:Int?){
