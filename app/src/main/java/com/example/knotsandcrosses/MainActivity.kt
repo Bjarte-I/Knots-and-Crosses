@@ -5,12 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.example.knotsandcrosses.api.GameService
-import com.example.knotsandcrosses.api.GameServiceCallback
 import com.example.knotsandcrosses.api.data.Game
 import com.example.knotsandcrosses.databinding.ActivityMainBinding
 import com.example.knotsandcrosses.dialogs.CreateGameDialog
 import com.example.knotsandcrosses.dialogs.GameDialogListener
-import com.example.knotsandcrosses.dialogs.GameIdDialog
 import com.example.knotsandcrosses.dialogs.JoinGameDialog
 
 class MainActivity : AppCompatActivity() , GameDialogListener {
@@ -47,7 +45,6 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
     override fun onDialogCreateGame(player: String) {
         Log.d(TAG,player)
         GameService.createGame(player, GameManager.StartingGameState, this::onCreatedGame)
-        GameManager.createGame(player)
     }
 
     override fun onDialogJoinGame(player: String, gameId: String) {

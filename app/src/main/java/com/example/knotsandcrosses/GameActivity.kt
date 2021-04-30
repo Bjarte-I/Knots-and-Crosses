@@ -94,5 +94,24 @@ class GameActivity : AppCompatActivity() {
 
     private fun clickedButton(index:Int){
         Log.d("clickedButton", index.toString())
+        var row = -1
+        if(index < 9){
+            row = 2
+        }
+        if(index < 6){
+            row = 1
+        }
+        if(index < 3){
+            row = 0
+        }
+        state.state[row][index] = "X"
+        GameService.updateGame(state.gameId, state.state, this::onUpdatedGame)
+        toggleAllGameButtons()
+        binding.tvOpponentName.setTextColor(Color.GREEN)
+        binding.tvPlayerName.setTextColor(Color.WHITE)
+    }
+
+    private fun onUpdatedGame(state: Game?, errorCode:Int?){
+        Log.d("update", state.toString())
     }
 }

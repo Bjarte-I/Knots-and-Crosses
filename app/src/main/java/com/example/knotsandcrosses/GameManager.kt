@@ -9,9 +9,9 @@ object GameManager {
     var player:String? = null
     var state:GameState? = null
 
-    val StartingGameState:GameState = listOf(listOf(0,0,0),listOf(0,0,0),listOf(0,0,0))
+    val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
 
-    fun createGame(player:String){
+    /*fun createGame(player:String){
 
         GameService.createGame(player,StartingGameState) { game: Game?, err: Int? ->
             if(err != null){
@@ -23,5 +23,5 @@ object GameManager {
             }
         }
 
-    }
+    }*/
 }
