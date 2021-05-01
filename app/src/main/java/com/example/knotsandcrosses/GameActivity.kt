@@ -7,12 +7,15 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import com.example.knotsandcrosses.databinding.ActivityGameBinding
+import com.example.knotsandcrosses.dialogs.CreateGameDialog
+import com.example.knotsandcrosses.dialogs.ResultDialogListener
+import com.example.knotsandcrosses.dialogs.WinOrLooseDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity(), ResultDialogListener {
 
     private lateinit var binding: ActivityGameBinding
 
@@ -57,8 +60,8 @@ class GameActivity : AppCompatActivity() {
         }
         if(checkForWin(player)){
             Log.d("checkForWin", "You lost!")
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            val dlg = WinOrLooseDialog("lost")
+            dlg.show(supportFragmentManager,"GameResultDialogFragment")
             return
         }
         if(GameManager.isPlayerOne){
@@ -136,8 +139,10 @@ class GameActivity : AppCompatActivity() {
         }
         if(checkForWin(player)){
             Log.d("checkForWin", "You won!")
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            val dlg = WinOrLooseDialog("won")
+            dlg.show(supportFragmentManager,"GameResultDialogFragment")
+            /*val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)*/
             return
         }
         waitForOpponent()
@@ -195,5 +200,10 @@ class GameActivity : AppCompatActivity() {
         }
 
         return false
+    }
+
+    override fun onDialogWinOrLoose() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 }
