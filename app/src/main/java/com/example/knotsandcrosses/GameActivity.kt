@@ -17,6 +17,7 @@ class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
     private lateinit var state: Game
+    private var isPlayerOne = true
     private var waiting = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,10 +26,18 @@ class GameActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         state = intent.getParcelableExtra("EXTRA_STATE")!!
+        isPlayerOne = intent.getBooleanExtra("EXTRA_isPlayerOne", true)
 
         binding.tvGameId.text = state.gameId
-        binding.tvPlayerName.text = state.players[0]
 
+        if(!isPlayerOne){
+            binding.tvPlayerName.text = state.players[1]
+            binding.tvOpponentName.text = state.players[0]
+            binding.tvOpponentName.setTextColor(Color.GREEN)
+            binding.tvPlayerName.setTextColor(Color.BLACK)
+        } else {
+            binding.tvPlayerName.text = state.players[0]
+        }
         setListenersOnButtons()
 
         disableAllGameButtons()
@@ -49,13 +58,20 @@ class GameActivity : AppCompatActivity() {
 
     private fun stateChanged(){
         Log.d("StateChanged", "Changed!")
-        if(checkForWin("player2")){
+        val player = if(isPlayerOne){
+            "player2"
+        } else {
+            "player1"
+        }
+        if(checkForWin(player)){
             Log.d("checkForWin", "You lost!")
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             return
         }
-        binding.tvOpponentName.text = state.players[1]
+        if(isPlayerOne){
+            binding.tvOpponentName.text = state.players[1]
+        }
         binding.tvPlayerName.setTextColor(Color.GREEN)
         binding.tvOpponentName.setTextColor(Color.BLACK)
         var buttonsToBeEnabled = mutableListOf<Int>()
@@ -131,12 +147,22 @@ class GameActivity : AppCompatActivity() {
             row = 2
             indx = index - 6
         }
-        state.state[row][indx] = "X"
+        val mark = if(isPlayerOne){
+            "X"
+        } else {
+            "O"
+        }
+        state.state[row][indx] = mark
         GameService.updateGame(state.gameId, state.state, this::onUpdatedGame)
         disableAllGameButtons()
         binding.tvOpponentName.setTextColor(Color.GREEN)
         binding.tvPlayerName.setTextColor(Color.BLACK)
-        if(checkForWin("player1")){
+        val player = if(isPlayerOne){
+            "player1"
+        } else {
+            "player2"
+        }
+        if(checkForWin(player)){
             Log.d("checkForWin", "You won!")
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)

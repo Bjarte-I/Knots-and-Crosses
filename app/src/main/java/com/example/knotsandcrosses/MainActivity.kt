@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
 
     override fun onDialogJoinGame(player: String, gameId: String) {
         Log.d(TAG, "$player $gameId")
+        GameService.joinGame(player, gameId, this::onJoinedGame)
     }
 
     private fun onCreatedGame(state: Game?, errorCode:Int?){
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
         }
         val intent = Intent(this, GameActivity::class.java).apply {
             putExtra("EXTRA_STATE", state)
+            putExtra("EXTRA_isPlayerOne", true)
         }
         startActivity(intent)
         /*print(state.gameId)
@@ -69,8 +71,15 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
     }
 
     private fun onJoinedGame(state: Game?, errorCode:Int?){
-        print(state)
-        print(errorCode)
+        if(state == null){
+            print(errorCode)
+            return
+        }
+        val intent = Intent(this, GameActivity::class.java).apply {
+            putExtra("EXTRA_STATE", state)
+            putExtra("EXTRA_isPlayerOne", false)
+        }
+        startActivity(intent)
     }
 
 }
