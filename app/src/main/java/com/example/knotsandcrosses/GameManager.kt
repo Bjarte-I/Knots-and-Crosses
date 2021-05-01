@@ -17,6 +17,7 @@ object GameManager {
     var gameId:String? = null
     var waiting = true
     var isPlayerOne = true
+    var result = "Not decided yet"
     private var gotBothPlayersEarlier = false
 
     private val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
@@ -32,6 +33,7 @@ object GameManager {
                 gameId = game?.gameId
                 isPlayerOne = true
                 gotBothPlayersEarlier = false
+                result = "Not decided yet"
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -52,6 +54,7 @@ object GameManager {
                 isPlayerOne = false
                 this@GameManager.gameId = game?.gameId
                 state = game?.state
+                result = "Not decided yet"
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

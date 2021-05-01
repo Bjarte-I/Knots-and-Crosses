@@ -2,7 +2,6 @@ package com.example.knotsandcrosses
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import com.example.knotsandcrosses.databinding.ActivityMainBinding
 import com.example.knotsandcrosses.dialogs.CreateGameDialog
 import com.example.knotsandcrosses.dialogs.GameDialogListener
@@ -44,5 +43,4 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
     override fun onDialogJoinGame(player: String, gameId: String) {
         GameManager.joinGame(player, gameId)
     }
-
 }
