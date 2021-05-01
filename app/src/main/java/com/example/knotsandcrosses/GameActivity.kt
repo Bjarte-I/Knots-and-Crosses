@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import com.example.knotsandcrosses.api.GameService
-import com.example.knotsandcrosses.api.data.Game
 import com.example.knotsandcrosses.databinding.ActivityGameBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -17,27 +15,21 @@ import kotlinx.coroutines.launch
 class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
-    private lateinit var state: Game
-    private var isPlayerOne = true
-    private var waiting = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        state = intent.getParcelableExtra("EXTRA_STATE")!!
-        isPlayerOne = intent.getBooleanExtra("EXTRA_isPlayerOne", true)
+        binding.tvGameId.text = GameManager.gameId
 
-        binding.tvGameId.text = state.gameId
-
-        if(!isPlayerOne){
-            binding.tvPlayerName.text = state.players[1]
-            binding.tvOpponentName.text = state.players[0]
+        if(!GameManager.isPlayerOne){
+            binding.tvPlayerName.text = GameManager.player2
+            binding.tvOpponentName.text = GameManager.player1
             binding.tvOpponentName.setTextColor(Color.GREEN)
             binding.tvPlayerName.setTextColor(Color.BLACK)
         } else {
-            binding.tvPlayerName.text = state.players[0]
+            binding.tvPlayerName.text = GameManager.player1
         }
         setListenersOnButtons()
 
@@ -48,19 +40,17 @@ class GameActivity : AppCompatActivity() {
 
     private fun waitForOpponent(){
         CoroutineScope(IO).launch {
-            while(waiting){
-                Log.d("waitForOpponent", "Launching pollgame request")
-                GameService.pollGame(state.gameId, this@GameActivity::onPolledGame)
+            while(GameManager.waiting){
+                GameManager.pollGame(this@GameActivity::stateChanged)
                 delay(5000)
             }
+            GameManager.waiting = true
         }
-        waiting = true
     }
 
-    private fun stateChanged(){
-        Log.d("StateChanged", "Changed!")
+    fun stateChanged(){
         updateButtonText()  // Update the knots and crosses text on the buttons.
-        val player = if(isPlayerOne){
+        val player = if(GameManager.isPlayerOne){
             "player2"
         } else {
             "player1"
@@ -71,14 +61,14 @@ class GameActivity : AppCompatActivity() {
             startActivity(intent)
             return
         }
-        if(isPlayerOne){
-            binding.tvOpponentName.text = state.players[1]
+        if(GameManager.isPlayerOne){
+            binding.tvOpponentName.text = GameManager.player2
         }
         binding.tvPlayerName.setTextColor(Color.GREEN)
         binding.tvOpponentName.setTextColor(Color.BLACK)
-        var buttonsToBeEnabled = mutableListOf<Int>()
+        val buttonsToBeEnabled = mutableListOf<Int>()
         var index = 0
-        state.state.forEach{ row ->
+        GameManager.state?.forEach{ row ->
             row.forEach {
                 if(it == "0"){
                     buttonsToBeEnabled.add(index)
@@ -95,20 +85,6 @@ class GameActivity : AppCompatActivity() {
             toBeEnabled.forEach{
                 val button = gameButtons[it]
                 button.isEnabled = true  // Enable the buttons for places that has not been taken.
-            }
-        }
-    }
-
-
-    private fun onPolledGame(newState: Game?, errorCode:Int?){
-        Log.d("polledGame", "testing")
-        if(newState == null){
-            Log.e("polledGame", errorCode.toString())
-        } else {
-            if(newState != state){
-                state = newState
-                waiting = false
-                stateChanged()
             }
         }
     }
@@ -134,33 +110,26 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun clickedButton(index:Int){
-        Log.d("clickedButton", index.toString())
         var row = -1
         var indx = -1
-        if(index == 0 || index == 1 || index == 2){
-            row = 0
-            indx = index
+        for(i in 0..2){
+            if(index == 3*i || index == 3*i+1 || index == 3*i+2){
+                row = i
+                indx = index - (3*i)
+            }
         }
-        if(index == 3 || index == 4 || index == 5){
-            row = 1
-            indx = index - 3
-        }
-        if(index == 6 || index == 7  || index == 8){
-            row = 2
-            indx = index - 6
-        }
-        val mark = if(isPlayerOne){
+        val mark = if(GameManager.isPlayerOne){
             "X"
         } else {
             "O"
         }
-        state.state[row][indx] = mark
+        GameManager.state!![row][indx] = mark
         updateButtonText()
-        GameService.updateGame(state.gameId, state.state, this::onUpdatedGame)
+        GameManager.updateGame()
         disableAllGameButtons()
         binding.tvOpponentName.setTextColor(Color.GREEN)
         binding.tvPlayerName.setTextColor(Color.BLACK)
-        val player = if(isPlayerOne){
+        val player = if(GameManager.isPlayerOne){
             "player1"
         } else {
             "player2"
@@ -182,7 +151,7 @@ class GameActivity : AppCompatActivity() {
         }
 
         var index = 0
-        state.state.forEach { row ->
+        GameManager.state?.forEach { row ->
             row.forEach { 
                 if(it != "0"){
                     gameButtons[index].text = it
@@ -201,8 +170,8 @@ class GameActivity : AppCompatActivity() {
         } else if(player == "player2") {
             compareParameter = "O"
         }
-        var oneBigRow = mutableListOf<Int>()
-        state.state.forEach { row ->
+        val oneBigRow = mutableListOf<Int>()
+        GameManager.state?.forEach { row ->
             row.forEach {
                 if(it == compareParameter){
                     oneBigRow.add(1)
@@ -225,11 +194,6 @@ class GameActivity : AppCompatActivity() {
             return true
         }
 
-
         return false
-    }
-
-    private fun onUpdatedGame(state: Game?, errorCode:Int?){
-        Log.d("update", state.toString())
     }
 }
