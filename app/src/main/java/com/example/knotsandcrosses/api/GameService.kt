@@ -15,20 +15,12 @@ import org.json.JSONObject
 
 typealias GameServiceCallback = (state: Game?, errorCode:Int? ) -> Unit
 
-/*  NOTE:
-    Using object expression to make GameService a Singleton.
-    Why? Because there should only be one active GameService ever.
- */
-
 object GameService {
 
-    /// NOTE: Do not want to have App.context all over the code. Also it is nice if we later want to support different contexts
     private val context = App.context
 
-    /// NOTE: Good practice to use a queue for performing requests.
     private val requestQueue: RequestQueue = Volley.newRequestQueue(context)
 
-    /// NOTE: One possible way of constructing a list of API url. You want to construct the urls so that you can support different environments (i.e. Debug, Test, Prod etc)
     private enum class APIEndpoints(val url:String) {
         CREATE_GAME("%1s%2s%3s".format(context.getString(R.string.protocol), context.getString(R.string.domain), context.getString(R.string.base_path))),
         JOIN_GAME("%1s%2s%3s%4s".format(context.getString(R.string.protocol), context.getString(R.string.domain), context.getString(R.string.base_path), context.getString(R.string.join_game_path))),

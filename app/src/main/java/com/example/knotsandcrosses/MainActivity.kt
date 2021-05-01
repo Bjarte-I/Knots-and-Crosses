@@ -1,19 +1,14 @@
 package com.example.knotsandcrosses
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.knotsandcrosses.api.GameService
-import com.example.knotsandcrosses.api.data.Game
 import com.example.knotsandcrosses.databinding.ActivityMainBinding
 import com.example.knotsandcrosses.dialogs.CreateGameDialog
 import com.example.knotsandcrosses.dialogs.GameDialogListener
 import com.example.knotsandcrosses.dialogs.JoinGameDialog
 
 class MainActivity : AppCompatActivity() , GameDialogListener {
-
-    val TAG:String = "MainActivity"
 
     lateinit var binding: ActivityMainBinding
 
@@ -23,7 +18,7 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
         setContentView(binding.root)
 
         binding.startGameButton.setOnClickListener {
-            createNewGame()
+            createGame()
         }
 
         binding.joinGameButton.setOnClickListener {
@@ -32,9 +27,13 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
 
     }
 
-    private fun createNewGame(){
+    private fun createGame(){
         val dlg = CreateGameDialog()
         dlg.show(supportFragmentManager,"CreateGameDialogFragment")
+    }
+
+    override fun onDialogCreateGame(player: String) {
+        GameManager.createGame(player)
     }
 
     private fun joinGame(){
@@ -42,44 +41,8 @@ class MainActivity : AppCompatActivity() , GameDialogListener {
         dlg.show(supportFragmentManager, "JoinGameDialogFragment")
     }
 
-    override fun onDialogCreateGame(player: String) {
-        Log.d(TAG,player)
-        GameService.createGame(player, GameManager.StartingGameState, this::onCreatedGame)
-    }
-
     override fun onDialogJoinGame(player: String, gameId: String) {
-        Log.d(TAG, "$player $gameId")
-        GameService.joinGame(player, gameId, this::onJoinedGame)
-    }
-
-    private fun onCreatedGame(state: Game?, errorCode:Int?){
-        if(state == null){
-            print(errorCode)
-            return
-        }
-        val intent = Intent(this, GameActivity::class.java).apply {
-            putExtra("EXTRA_STATE", state)
-            putExtra("EXTRA_isPlayerOne", true)
-        }
-        startActivity(intent)
-        /*print(state.gameId)
-        print(errorCode)
-        val dlg = GameIdDialog(state.gameId)
-        dlg.show(supportFragmentManager,"GameIdDialogFragment")*/
-        /*val displayText = "%1s%2s".format("Latest game id: ", state.gameId)
-        binding.tvGameId.text = displayText*/
-    }
-
-    private fun onJoinedGame(state: Game?, errorCode:Int?){
-        if(state == null){
-            print(errorCode)
-            return
-        }
-        val intent = Intent(this, GameActivity::class.java).apply {
-            putExtra("EXTRA_STATE", state)
-            putExtra("EXTRA_isPlayerOne", false)
-        }
-        startActivity(intent)
+        GameManager.joinGame(player, gameId)
     }
 
 }
