@@ -5,6 +5,7 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import com.example.knotsandcrosses.api.GameService
 import com.example.knotsandcrosses.api.data.Game
 import com.example.knotsandcrosses.databinding.ActivityGameBinding
@@ -58,6 +59,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun stateChanged(){
         Log.d("StateChanged", "Changed!")
+        updateButtonText()  // Update the knots and crosses text on the buttons.
         val player = if(isPlayerOne){
             "player2"
         } else {
@@ -153,6 +155,7 @@ class GameActivity : AppCompatActivity() {
             "O"
         }
         state.state[row][indx] = mark
+        updateButtonText()
         GameService.updateGame(state.gameId, state.state, this::onUpdatedGame)
         disableAllGameButtons()
         binding.tvOpponentName.setTextColor(Color.GREEN)
@@ -169,6 +172,26 @@ class GameActivity : AppCompatActivity() {
             return
         }
         waitForOpponent()
+    }
+    
+    private fun updateButtonText(){
+        var gameButtons: List<Button>
+        binding.apply {
+            gameButtons =
+                listOf(zeroZero, zeroOne, zeroTwo, oneZero, oneOne, oneTwo, twoZero, twoOne, twoTwo)
+        }
+
+        var index = 0
+        state.state.forEach { row ->
+            row.forEach { 
+                if(it != "0"){
+                    gameButtons[index].text = it
+                } else {
+                    gameButtons[index].text = ""
+                }
+                index += 1
+            }
+        }
     }
 
     private fun checkForWin(player: String): Boolean {
