@@ -21,6 +21,7 @@ object GameManager {
     var result = "Not decided yet"
     var cheatMode = false
     var firstMark = true
+    var isWaitingForPlayer = false
     private var gotBothPlayersEarlier = false
 
     val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
@@ -35,12 +36,13 @@ object GameManager {
                 print(err)
             } else {
                 player1 = player
+                player2 = null
                 state = StartingGameState
                 gameId = game?.gameId
-                isPlayerOne = true
                 gotBothPlayersEarlier = false
                 result = "Not decided yet"
                 cheatMode = false
+                isWaitingForPlayer = true
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -57,13 +59,14 @@ object GameManager {
             if(err != null){
                 print(err)
             } else {
-                player1 = game?.players?.get(0)
-                player2 = player
-                isPlayerOne = false
+                player1 = player
+                player2 = game?.players?.get(0)
                 this@GameManager.gameId = game?.gameId
                 state = game?.state
                 result = "Not decided yet"
                 cheatMode = false
+                isWaitingForPlayer = false
+                state = StartingGameState
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -76,16 +79,23 @@ object GameManager {
     fun pollGame(callback: KFunction0<Unit>){
         CoroutineScope(Dispatchers.IO).launch {
             GameService.pollGame(gameId!!) { game: Game?, err: Int? ->
+                Log.d("GameManager", "polling")
                 if (err != null) {
                     print(err)
                 } else {
-                    if (game?.state != state || (game?.players?.size == 2 && !gotBothPlayersEarlier && isPlayerOne)) {
-                        gotBothPlayersEarlier = true
-                        state = game?.state
-                        player2 = game?.players?.get(1)
+                    if (game?.state != state && game?.state != null && game.state != listOf(null)) {
+                        state = game.state
                         waiting = false
                         callback()
                     }
+                    if(game?.players?.size == 2 && isWaitingForPlayer){
+                        isWaitingForPlayer = false
+                        player2 = game.players[1]
+                        waiting = false
+                        callback()
+                    }
+
+
                 }
             }
         }
