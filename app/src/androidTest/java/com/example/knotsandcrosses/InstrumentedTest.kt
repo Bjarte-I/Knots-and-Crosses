@@ -15,12 +15,4 @@ class InstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertThat("com.example.knotsandcrosses").isEqualTo(appContext.packageName)
     }
-
-    @Test
-    fun createGame_GameManager_isCorrect() {
-        val player = "Player 1"
-        GameManager.createGame(player)
-        assertThat(GameManager.player1).isEqualTo(player)
-        assertThat(GameManager.gameId).isNotNull()
-    }
 }
