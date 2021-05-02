@@ -61,6 +61,9 @@ object GameManager {
     }
 
     fun joinGame(player:String, gameId: String){
+
+        CountingIdlingResourceSingleton.increment()
+
         GameService.joinGame(player, gameId){ game: Game?, err: Int? ->
             if(err != null){
                 print(err)
@@ -80,6 +83,7 @@ object GameManager {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 App.context.startActivity(intent)
+                CountingIdlingResourceSingleton.decrement()
             }
         }
     }
