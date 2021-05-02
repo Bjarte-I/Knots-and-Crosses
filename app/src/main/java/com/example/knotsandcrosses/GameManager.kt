@@ -19,6 +19,8 @@ object GameManager {
     var waiting = true
     var isPlayerOne = true
     var result = "Not decided yet"
+    var cheatMode = false
+    var firstMark = true
     private var gotBothPlayersEarlier = false
 
     val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
@@ -38,6 +40,7 @@ object GameManager {
                 isPlayerOne = true
                 gotBothPlayersEarlier = false
                 result = "Not decided yet"
+                cheatMode = false
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -60,6 +63,7 @@ object GameManager {
                 this@GameManager.gameId = game?.gameId
                 state = game?.state
                 result = "Not decided yet"
+                cheatMode = false
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

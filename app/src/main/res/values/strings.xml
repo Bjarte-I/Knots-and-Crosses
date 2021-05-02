@@ -21,4 +21,6 @@
     <string name="latest_game_id">Latest game id</string>
     <string name="game_id">Game id</string>
     <string name="opponent">Waiting for opponent</string>
+    <string name="cheat_mode">Cheat mode</string>
+    <string name="standard_mode">Standard mode</string>
 </resources>
