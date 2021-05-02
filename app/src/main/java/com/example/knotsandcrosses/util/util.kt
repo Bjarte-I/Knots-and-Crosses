@@ -1,9 +1,8 @@
 package com.example.knotsandcrosses.util
 
-import android.util.Log
 import com.example.knotsandcrosses.GameManager
 
-fun checkForWin(player: String): Boolean {
+fun isWon(player: String): Boolean {
     var compareParameter = ""
     if(player == "player1"){
         compareParameter = "X"
@@ -36,7 +35,7 @@ fun checkForWin(player: String): Boolean {
     return false
 }
 
-fun checkForDraw(): Boolean {
+fun isDrawn(): Boolean {
     GameManager.state?.forEach { row ->
         row.forEach {
             if(it == "0"){
@@ -45,4 +44,18 @@ fun checkForDraw(): Boolean {
         }
     }
     return true
+}
+
+fun copyGameStateWithoutReference(): MutableList<MutableList<String>> {
+    val tempState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
+    val values = mutableListOf<String>()
+    GameManager.state?.forEach { rows ->
+        rows.forEach {
+            values.add(it)
+        }
+    }
+    tempState[0] = mutableListOf(values[0], values[1], values[2])
+    tempState[1] = mutableListOf(values[3], values[4], values[5])
+    tempState[2] = mutableListOf(values[6], values[7], values[8])
+    return tempState
 }
