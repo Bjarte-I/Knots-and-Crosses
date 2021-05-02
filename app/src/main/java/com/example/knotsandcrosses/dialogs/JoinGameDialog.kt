@@ -21,8 +21,8 @@ class JoinGameDialog : DialogFragment() {
             builder.apply {
                 setTitle("Join game")
                 setPositiveButton("Join") { dialog, which ->
-                    if(binding.playerName.text.toString() != "" && binding.gameId.text.toString() != ""){
-                        listener.onDialogJoinGame(binding.playerName.text.toString(), binding.gameId.text.toString())
+                    if(binding.playerName.text.toString() != "" && binding.dialogGameId.text.toString() != ""){
+                        listener.onDialogJoinGame(binding.playerName.text.toString(), binding.dialogGameId.text.toString())
                     }
                 }
                 setNegativeButton("Cancle") { dialog, which ->

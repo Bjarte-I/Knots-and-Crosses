@@ -7,9 +7,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import com.example.knotsandcrosses.databinding.ActivityGameBinding
-import com.example.knotsandcrosses.dialogs.CreateGameDialog
 import com.example.knotsandcrosses.dialogs.ResultDialogListener
 import com.example.knotsandcrosses.dialogs.WinOrLooseDialog
+import com.example.knotsandcrosses.util.checkForDraw
+import com.example.knotsandcrosses.util.checkForWin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
@@ -59,9 +60,13 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
             "player1"
         }
         if(checkForWin(player)){
-            Log.d("checkForWin", "You lost!")
             val dlg = WinOrLooseDialog("lost")
             dlg.show(supportFragmentManager,"GameResultDialogFragment")
+            return
+        }
+        if(checkForDraw()){
+            val dlg = WinOrLooseDialog("drawed")
+            dlg.show(supportFragmentManager, "GameResultDialogFragment")
             return
         }
         if(GameManager.isPlayerOne){
@@ -141,8 +146,11 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
             Log.d("checkForWin", "You won!")
             val dlg = WinOrLooseDialog("won")
             dlg.show(supportFragmentManager,"GameResultDialogFragment")
-            /*val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)*/
+            return
+        }
+        if(checkForDraw()){
+            val dlg = WinOrLooseDialog("drawed")
+            dlg.show(supportFragmentManager, "GameResultDialogFragment")
             return
         }
         waitForOpponent()
@@ -166,40 +174,6 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
                 index += 1
             }
         }
-    }
-
-    private fun checkForWin(player: String): Boolean {
-        var compareParameter = ""
-        if(player == "player1"){
-            compareParameter = "X"
-        } else if(player == "player2") {
-            compareParameter = "O"
-        }
-        val oneBigRow = mutableListOf<Int>()
-        GameManager.state?.forEach { row ->
-            row.forEach {
-                if(it == compareParameter){
-                    oneBigRow.add(1)
-                } else {
-                    oneBigRow.add(0)
-                }
-            }
-        }
-        for(i in 0..2){
-            if(oneBigRow[3 * i] + oneBigRow[1 + 3 * i] + oneBigRow[2 + 3 * i] == 3){  // Horizontal win
-                Log.d("checkForWin", "A player won.")
-                return true
-            }
-            if(oneBigRow[i] + oneBigRow[3 + i] + oneBigRow[6 + i] == 3 ){  // Vertical win
-                return true
-            }
-        }
-        for(i in 0..1)
-        if(oneBigRow[0 + 2 * i] + oneBigRow[4] + oneBigRow[8 - i * 2] == 3){  // Diagonal win
-            return true
-        }
-
-        return false
     }
 
     override fun onDialogWinOrLoose() {

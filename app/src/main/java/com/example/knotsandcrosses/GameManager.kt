@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.knotsandcrosses.api.GameService
 import com.example.knotsandcrosses.api.data.Game
 import com.example.knotsandcrosses.api.data.GameState
+import com.example.knotsandcrosses.util.CountingIdlingResourceSingleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,11 +21,14 @@ object GameManager {
     var result = "Not decided yet"
     private var gotBothPlayersEarlier = false
 
-    private val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
+    val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
 
     fun createGame(player:String){
 
+        CountingIdlingResourceSingleton.increment()
+
         GameService.createGame(player,StartingGameState) { game: Game?, err: Int? ->
+
             if(err != null){
                 print(err)
             } else {
@@ -39,6 +43,7 @@ object GameManager {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 App.context.startActivity(intent)
+                CountingIdlingResourceSingleton.decrement()
             }
         }
 
