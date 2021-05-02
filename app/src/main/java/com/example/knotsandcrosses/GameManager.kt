@@ -25,7 +25,10 @@ object GameManager {
     var isWaitingForPlayer = false
     private var gotBothPlayersEarlier = false
 
-    private val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
+    //There are many places I could have used StartingGameState, however since I had major
+    // problems with them changing to something different, since the reference to the original
+    // is hard to remove, I have decided to be safe and use mutableListOf directly.
+    val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
 
     fun createGame(player:String){
 
@@ -84,7 +87,6 @@ object GameManager {
     fun pollGame(callback: KFunction0<Unit>){
         CoroutineScope(Dispatchers.IO).launch {
             GameService.pollGame(gameId!!) { game: Game?, err: Int? ->
-                // Log.d("GameManager", "polling")
                 if (err != null) {
                     print(err)
                 } else {

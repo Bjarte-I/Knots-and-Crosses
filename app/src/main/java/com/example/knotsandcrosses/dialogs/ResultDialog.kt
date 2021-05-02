@@ -9,7 +9,7 @@ import com.example.knotsandcrosses.GameManager
 import com.example.knotsandcrosses.databinding.DialogWinOrLooseBinding
 
 
-class WinOrLooseDialog(gameResult: String) : DialogFragment() {
+class ResultDialog(gameResult: String) : DialogFragment() {
     internal lateinit var listener:ResultDialogListener
     var result = gameResult
 

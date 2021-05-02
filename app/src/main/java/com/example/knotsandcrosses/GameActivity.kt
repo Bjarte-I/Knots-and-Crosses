@@ -8,9 +8,10 @@ import android.util.Log
 import android.widget.Button
 import com.example.knotsandcrosses.databinding.ActivityGameBinding
 import com.example.knotsandcrosses.dialogs.ResultDialogListener
-import com.example.knotsandcrosses.dialogs.WinOrLooseDialog
-import com.example.knotsandcrosses.util.checkForDraw
-import com.example.knotsandcrosses.util.checkForWin
+import com.example.knotsandcrosses.dialogs.ResultDialog
+import com.example.knotsandcrosses.util.isDrawn
+import com.example.knotsandcrosses.util.isWon
+import com.example.knotsandcrosses.util.copyGameStateWithoutReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
@@ -54,7 +55,7 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
                     Log.d("PollGame", "with stateChanged")
                     GameManager.pollGame(this@GameActivity::stateChanged)
                 }
-                delay(5000)
+                delay(1000)
             }
             GameManager.waiting = true
         }
@@ -77,13 +78,13 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         } else {
             "player1"
         }
-        if(checkForWin(player)){
-            val dlg = WinOrLooseDialog("lost")
+        if(isWon(player)){
+            val dlg = ResultDialog("lost")
             dlg.show(supportFragmentManager,"GameResultDialogFragment")
             return
         }
-        if(checkForDraw()){
-            val dlg = WinOrLooseDialog("drawed")
+        if(isDrawn()){
+            val dlg = ResultDialog("drawed")
             dlg.show(supportFragmentManager, "GameResultDialogFragment")
             return
         }
@@ -156,17 +157,9 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
             if(!GameManager.firstMark){  // If a cheat mark has been used.
                 toggleValidGameButtons()
                 updateButtonText()
-                GameManager.firstMark = true
+                GameManager.firstMark = true  // Makes it possible to use the cheat mark again.
 
-                val values = mutableListOf<String>()
-                GameManager.state?.forEach { rows ->
-                    rows.forEach {
-                        values.add(it)
-                    }
-                }  // Copy mutablelist without keeping the reference.
-                GameManager.tempState[0] = mutableListOf(values[0], values[1], values[2])
-                GameManager.tempState[1] = mutableListOf(values[3], values[4], values[5])
-                GameManager.tempState[2] = mutableListOf(values[6], values[7], values[8])
+                GameManager.tempState = copyGameStateWithoutReference()
             }
         }
     }
@@ -190,16 +183,8 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         } else {
             "O"
         }
-        if(GameManager.cheatMode && GameManager.firstMark && !checkForDraw() && !checkForWin("player1")){
-            val values = mutableListOf<String>()
-            GameManager.state?.forEach { rows ->
-                rows.forEach {
-                    values.add(it)
-                }
-            }  // Copy mutablelist without keeping the reference.
-            GameManager.tempState[0] = mutableListOf(values[0], values[1], values[2])
-            GameManager.tempState[1] = mutableListOf(values[3], values[4], values[5])
-            GameManager.tempState[2] = mutableListOf(values[6], values[7], values[8])
+        if(GameManager.cheatMode && GameManager.firstMark && !isDrawn() && !isWon("player1")){
+            GameManager.tempState = copyGameStateWithoutReference()
 
             GameManager.tempState[row][indx] = mark
 
@@ -215,20 +200,12 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         if(GameManager.cheatMode){
             GameManager.tempState[row][indx] = mark
         } else {
-            val values = mutableListOf<String>()
-            GameManager.state?.forEach { rows ->
-                rows.forEach {
-                    values.add(it)
-                }
-            }  // Copy mutablelist without keeping the reference.
-            GameManager.tempState[0] = mutableListOf(values[0], values[1], values[2])
-            GameManager.tempState[1] = mutableListOf(values[3], values[4], values[5])
-            GameManager.tempState[2] = mutableListOf(values[6], values[7], values[8])
+            GameManager.tempState = copyGameStateWithoutReference()
 
             GameManager.tempState[row][indx] = mark
         }
         GameManager.firstMark = true
-        GameManager.updateGame{
+        GameManager.updateGame{  // When the network has received the updated game state.
             updateButtonText()
             disableAllGameButtons()
             binding.tvOpponentName.setTextColor(Color.GREEN)
@@ -238,23 +215,20 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
             } else {
                 "player2"
             }
-            if(checkForWin(player)){
-                Log.d("checkForWin", "You won!")
-                val dlg = WinOrLooseDialog("won")
+            if(isWon(player)){
+                val dlg = ResultDialog("won")
                 dlg.show(supportFragmentManager,"GameResultDialogFragment")
                 GameManager.waiting = false
                 return@updateGame
             }
-            if(checkForDraw()){
-                val dlg = WinOrLooseDialog("drawed")
+            if(isDrawn()){
+                val dlg = ResultDialog("drawed")
                 dlg.show(supportFragmentManager, "GameResultDialogFragment")
                 GameManager.waiting = false
                 return@updateGame
             }
             waitForOpponent()
         }
-        // updateButtonText()
-        // disableAllGameButtons()
 
     }
     
