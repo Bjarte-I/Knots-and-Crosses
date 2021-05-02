@@ -20,6 +20,8 @@ When you have made a move, all the buttons will be disabled until the applicatio
 Very similiar to the create game, but here you must also provide a gameId (gotten from the other person you want to play). Again you can choose to go first or wait.
 
 # Cheat mode
-Sometimes you just want to win over your friends no matter what. If you really feel like you have to, you have the option. By clicking the Cheat mode button you will get one extra mark to place down. Should give you a pretty hefty advantage. Will you crash the other's game? Probably. will they notice you cheated? Perhaps. Will it be fun to try? Absolutely!
+Sometimes you just want to win over your friends no matter what. If you really want to, you have the option. By clicking the Cheat mode button you will get one extra mark to place down. This should give you a pretty hefty advantage. Will you crash the other's game? Probably. will they notice you cheated? Perhaps. Will it be fun to try? Absolutely!
+
+If you regret your decision you might still be able to revert it! If you press the standard mode button before you have placed your second mark, it will revert your first mark and you'll be able to place down only one mark again.. Or switch to cheat mode again to finish the job. It's all up to you.
 
 
