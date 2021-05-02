@@ -15,6 +15,7 @@ object GameManager {
     var player1:String? = null
     var player2:String? = null
     var state:GameState? = null
+    var tempState: GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
     var gameId:String? = null
     var waiting = true
     var isPlayerOne = true
@@ -24,25 +25,27 @@ object GameManager {
     var isWaitingForPlayer = false
     private var gotBothPlayersEarlier = false
 
-    val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
+    private val StartingGameState:GameState = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
 
     fun createGame(player:String){
 
         CountingIdlingResourceSingleton.increment()
 
-        GameService.createGame(player,StartingGameState) { game: Game?, err: Int? ->
+        GameService.createGame(player,mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))) { game: Game?, err: Int? ->
 
             if(err != null){
                 print(err)
             } else {
                 player1 = player
                 player2 = null
-                state = StartingGameState
+                state = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
                 gameId = game?.gameId
                 gotBothPlayersEarlier = false
                 result = "Not decided yet"
                 cheatMode = false
                 isWaitingForPlayer = true
+                firstMark = true
+                waiting = true
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -62,11 +65,13 @@ object GameManager {
                 player1 = player
                 player2 = game?.players?.get(0)
                 this@GameManager.gameId = game?.gameId
-                state = game?.state
+                state = mutableListOf(mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"), mutableListOf("0", "0", "0"))
                 result = "Not decided yet"
                 cheatMode = false
                 isWaitingForPlayer = false
                 state = StartingGameState
+                firstMark = true
+                waiting = true
 
                 val intent = Intent(App.context, GameActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -79,11 +84,11 @@ object GameManager {
     fun pollGame(callback: KFunction0<Unit>){
         CoroutineScope(Dispatchers.IO).launch {
             GameService.pollGame(gameId!!) { game: Game?, err: Int? ->
-                Log.d("GameManager", "polling")
+                // Log.d("GameManager", "polling")
                 if (err != null) {
                     print(err)
                 } else {
-                    if (game?.state != state && game?.state != null && game.state != listOf(null)) {
+                    if (game?.state != state && game?.state != null && game.state != listOf(null)) {  //state changes when cheating
                         state = game.state
                         waiting = false
                         callback()
@@ -101,12 +106,14 @@ object GameManager {
         }
     }
 
-    fun updateGame() {
-        GameService.updateGame(gameId!!, state!!) { game: Game?, err: Int? ->
+    fun updateGame(kFunction0: () -> Unit) {
+        GameService.updateGame(gameId!!, tempState) { game: Game?, err: Int? ->
             if(err != null){
                 print(err)
             } else {
-                Log.d("GameManager/updateGame", state.toString())
+                Log.d("GameManager/updateGame", game?.state.toString())
+                state = game?.state
+                kFunction0()
             }
         }
     }

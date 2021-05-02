@@ -21,6 +21,7 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
     private lateinit var binding: ActivityGameBinding
     private var noFirstPlayer = true
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
@@ -47,8 +48,10 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         CoroutineScope(IO).launch {
             while(GameManager.waiting){
                 if(GameManager.isWaitingForPlayer){
+                    Log.d("PollGame", "with foundPlayer")
                     GameManager.pollGame(this@GameActivity::foundPlayer)
                 } else {
+                    Log.d("PollGame", "with stateChanged")
                     GameManager.pollGame(this@GameActivity::stateChanged)
                 }
                 delay(5000)
@@ -150,6 +153,21 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         } else {
             binding.buttonCheatMode.isEnabled = true
             binding.buttonStandardMode.isEnabled = false
+            if(!GameManager.firstMark){  // If a cheat mark has been used.
+                toggleValidGameButtons()
+                updateButtonText()
+                GameManager.firstMark = true
+
+                val values = mutableListOf<String>()
+                GameManager.state?.forEach { rows ->
+                    rows.forEach {
+                        values.add(it)
+                    }
+                }  // Copy mutablelist without keeping the reference.
+                GameManager.tempState[0] = mutableListOf(values[0], values[1], values[2])
+                GameManager.tempState[1] = mutableListOf(values[3], values[4], values[5])
+                GameManager.tempState[2] = mutableListOf(values[6], values[7], values[8])
+            }
         }
     }
 
@@ -164,6 +182,7 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
             if(index == 3*i || index == 3*i+1 || index == 3*i+2){
                 row = i
                 indx = index - (3*i)
+                break
             }
         }
         val mark = if(GameManager.isPlayerOne){
@@ -171,39 +190,72 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         } else {
             "O"
         }
-        GameManager.state!![row][indx] = mark
-        updateButtonText()
         if(GameManager.cheatMode && GameManager.firstMark && !checkForDraw() && !checkForWin("player1")){
+            val values = mutableListOf<String>()
+            GameManager.state?.forEach { rows ->
+                rows.forEach {
+                    values.add(it)
+                }
+            }  // Copy mutablelist without keeping the reference.
+            GameManager.tempState[0] = mutableListOf(values[0], values[1], values[2])
+            GameManager.tempState[1] = mutableListOf(values[3], values[4], values[5])
+            GameManager.tempState[2] = mutableListOf(values[6], values[7], values[8])
+
+            GameManager.tempState[row][indx] = mark
+
             lateinit var gameButtons: List<Button>
             binding.apply {
                 gameButtons = listOf(zeroZero, zeroOne, zeroTwo, oneZero, oneOne, oneTwo, twoZero, twoOne, twoTwo)
             }
             gameButtons[index].isEnabled = false
+            gameButtons[index].text = mark
             GameManager.firstMark = false
             return
         }
-        GameManager.firstMark = true
-        GameManager.updateGame()
-        disableAllGameButtons()
-        binding.tvOpponentName.setTextColor(Color.GREEN)
-        binding.tvPlayerName.setTextColor(Color.BLACK)
-        val player = if(GameManager.isPlayerOne){
-            "player1"
+        if(GameManager.cheatMode){
+            GameManager.tempState[row][indx] = mark
         } else {
-            "player2"
+            val values = mutableListOf<String>()
+            GameManager.state?.forEach { rows ->
+                rows.forEach {
+                    values.add(it)
+                }
+            }  // Copy mutablelist without keeping the reference.
+            GameManager.tempState[0] = mutableListOf(values[0], values[1], values[2])
+            GameManager.tempState[1] = mutableListOf(values[3], values[4], values[5])
+            GameManager.tempState[2] = mutableListOf(values[6], values[7], values[8])
+
+            GameManager.tempState[row][indx] = mark
         }
-        if(checkForWin(player)){
-            Log.d("checkForWin", "You won!")
-            val dlg = WinOrLooseDialog("won")
-            dlg.show(supportFragmentManager,"GameResultDialogFragment")
-            return
+        GameManager.firstMark = true
+        GameManager.updateGame{
+            updateButtonText()
+            disableAllGameButtons()
+            binding.tvOpponentName.setTextColor(Color.GREEN)
+            binding.tvPlayerName.setTextColor(Color.BLACK)
+            val player = if(GameManager.isPlayerOne){
+                "player1"
+            } else {
+                "player2"
+            }
+            if(checkForWin(player)){
+                Log.d("checkForWin", "You won!")
+                val dlg = WinOrLooseDialog("won")
+                dlg.show(supportFragmentManager,"GameResultDialogFragment")
+                GameManager.waiting = false
+                return@updateGame
+            }
+            if(checkForDraw()){
+                val dlg = WinOrLooseDialog("drawed")
+                dlg.show(supportFragmentManager, "GameResultDialogFragment")
+                GameManager.waiting = false
+                return@updateGame
+            }
+            waitForOpponent()
         }
-        if(checkForDraw()){
-            val dlg = WinOrLooseDialog("drawed")
-            dlg.show(supportFragmentManager, "GameResultDialogFragment")
-            return
-        }
-        waitForOpponent()
+        // updateButtonText()
+        // disableAllGameButtons()
+
     }
     
     private fun updateButtonText(){
