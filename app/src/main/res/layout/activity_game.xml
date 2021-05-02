@@ -18,6 +18,28 @@
         app:layout_constraintBottom_toTopOf="@id/ll_game_tiles"
         />
 
+    <Button
+        android:id="@+id/button_cheatMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cheat_mode"
+        app:layout_constraintTop_toBottomOf="@id/tv_gameId"
+        app:layout_constraintStart_toStartOf="@id/button_standardMode"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/ll_game_tiles"
+        />
+
+    <Button
+        android:id="@+id/button_standardMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/standard_mode"
+        app:layout_constraintTop_toBottomOf="@id/tv_gameId"
+        app:layout_constraintStart_toEndOf="@+id/button_cheatMode"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/ll_game_tiles"
+        />
+
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"

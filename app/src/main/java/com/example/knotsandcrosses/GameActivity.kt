@@ -52,7 +52,7 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         }
     }
 
-    fun stateChanged(){
+    private fun stateChanged(){
         updateButtonText()  // Update the knots and crosses text on the buttons.
         val player = if(GameManager.isPlayerOne){
             "player2"
@@ -114,6 +114,24 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
                     clickedButton(index)
                 }
             }
+            buttonCheatMode.setOnClickListener {
+                toggleCheatMode()
+            }
+            buttonStandardMode.setOnClickListener {
+                toggleCheatMode()
+            }
+            buttonStandardMode.isEnabled = false
+        }
+    }
+
+    private fun toggleCheatMode() {
+        GameManager.cheatMode = !GameManager.cheatMode
+        if(GameManager.cheatMode){
+            binding.buttonCheatMode.isEnabled = false
+            binding.buttonStandardMode.isEnabled = true
+        } else {
+            binding.buttonCheatMode.isEnabled = true
+            binding.buttonStandardMode.isEnabled = false
         }
     }
 
@@ -133,6 +151,16 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         }
         GameManager.state!![row][indx] = mark
         updateButtonText()
+        if(GameManager.cheatMode && GameManager.firstMark){
+            lateinit var gameButtons: List<Button>
+            binding.apply {
+                gameButtons = listOf(zeroZero, zeroOne, zeroTwo, oneZero, oneOne, oneTwo, twoZero, twoOne, twoTwo)
+            }
+            gameButtons[index].isEnabled = false
+            GameManager.firstMark = false
+            return
+        }
+        GameManager.firstMark = true
         GameManager.updateGame()
         disableAllGameButtons()
         binding.tvOpponentName.setTextColor(Color.GREEN)
