@@ -19,25 +19,26 @@ import kotlinx.coroutines.launch
 class GameActivity : AppCompatActivity(), ResultDialogListener {
 
     private lateinit var binding: ActivityGameBinding
+    private var noFirstPlayer = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.tvGameId.text = GameManager.gameId
-
-        if(!GameManager.isPlayerOne){
-            binding.tvPlayerName.text = GameManager.player2
-            binding.tvOpponentName.text = GameManager.player1
-            binding.tvOpponentName.setTextColor(Color.GREEN)
-            binding.tvPlayerName.setTextColor(Color.BLACK)
-        } else {
-            binding.tvPlayerName.text = GameManager.player1
+        binding.apply {
+            tvGameId.text = GameManager.gameId
+            tvPlayerName.text = GameManager.player1
+            tvPlayerName.setTextColor(Color.BLACK)
+            tvOpponentName.setTextColor(Color.BLACK)
+            if(GameManager.player2 != null){
+                tvOpponentName.text = GameManager.player2
+            } else {
+                disableAllGameButtons()  //Only disable the buttons if we are waiting for the opponent.
+            }
         }
-        setListenersOnButtons()
 
-        disableAllGameButtons()
+        setListenersOnButtons()
 
         waitForOpponent()
     }
@@ -45,14 +46,28 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
     private fun waitForOpponent(){
         CoroutineScope(IO).launch {
             while(GameManager.waiting){
-                GameManager.pollGame(this@GameActivity::stateChanged)
+                if(GameManager.isWaitingForPlayer){
+                    GameManager.pollGame(this@GameActivity::foundPlayer)
+                } else {
+                    GameManager.pollGame(this@GameActivity::stateChanged)
+                }
                 delay(5000)
             }
             GameManager.waiting = true
         }
     }
 
+    private fun foundPlayer(){
+        binding.tvOpponentName.text = GameManager.player2
+        toggleValidGameButtons()
+        waitForOpponent()
+    }
+
     private fun stateChanged(){
+        if(noFirstPlayer){
+            GameManager.isPlayerOne = false
+            noFirstPlayer = false
+        }
         updateButtonText()  // Update the knots and crosses text on the buttons.
         val player = if(GameManager.isPlayerOne){
             "player2"
@@ -74,6 +89,11 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         }
         binding.tvPlayerName.setTextColor(Color.GREEN)
         binding.tvOpponentName.setTextColor(Color.BLACK)
+
+        toggleValidGameButtons()
+    }
+
+    private fun toggleValidGameButtons(){
         val buttonsToBeEnabled = mutableListOf<Int>()
         var index = 0
         GameManager.state?.forEach{ row ->
@@ -84,13 +104,11 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
                 index += 1
             }
         }
-        toggleValidGameButtons(buttonsToBeEnabled)
-    }
 
-    private fun toggleValidGameButtons(toBeEnabled: List<Int>){
         binding.apply {
             val gameButtons = listOf(zeroZero, zeroOne, zeroTwo, oneZero, oneOne, oneTwo, twoZero, twoOne, twoTwo)
-            toBeEnabled.forEach{
+            disableAllGameButtons()
+            buttonsToBeEnabled.forEach{
                 val button = gameButtons[it]
                 button.isEnabled = true  // Enable the buttons for places that has not been taken.
             }
@@ -136,6 +154,10 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
     }
 
     private fun clickedButton(index:Int){
+        if(noFirstPlayer){
+            GameManager.isPlayerOne = true
+            noFirstPlayer = false
+        }
         var row = -1
         var indx = -1
         for(i in 0..2){
@@ -151,7 +173,7 @@ class GameActivity : AppCompatActivity(), ResultDialogListener {
         }
         GameManager.state!![row][indx] = mark
         updateButtonText()
-        if(GameManager.cheatMode && GameManager.firstMark){
+        if(GameManager.cheatMode && GameManager.firstMark && !checkForDraw() && !checkForWin("player1")){
             lateinit var gameButtons: List<Button>
             binding.apply {
                 gameButtons = listOf(zeroZero, zeroOne, zeroTwo, oneZero, oneOne, oneTwo, twoZero, twoOne, twoTwo)
